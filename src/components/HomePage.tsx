@@ -21,22 +21,22 @@ const HomePage: React.FC = () => {
         <div className="feature-cards">
           <div className="feature-card">
             <FontAwesomeIcon icon={faBook} size="2x" className="feature-icon" />
-            <h3>任务管理</h3>
-            <p>创建和管理每日学习任务，跟踪学习进度</p>
+            <h3>错题集记录</h3>
+            <p>记录错题，及时复盘</p>
           </div>
           <div className="feature-card">
             <FontAwesomeIcon icon={faClock} size="2x" className="feature-icon" />
-            <h3>时间统计</h3>
-            <p>记录学习时长，提高学习效率</p>
+            <h3>发发牢骚唠唠嗑</h3>
+            <p>你是否也学疯了！</p>
           </div>
           <div className="feature-card">
             <FontAwesomeIcon icon={faCalendarCheck} size="2x" className="feature-icon" />
-            <h3>每日打卡</h3>
-            <p>养成良好学习习惯，坚持每日打卡</p>
+            <h3>择校数据记录</h3>
+            <p>记录择校数据，方便后续分析</p>
           </div>
           <div className="feature-card">
             <FontAwesomeIcon icon={faBookOpen} size="2x" className="feature-icon" />
-            <h3>学习计划</h3>
+            <h3>复试计划与上机考试</h3>
             <p>制定科学的学习计划，合理分配时间</p>
           </div>
         </div>

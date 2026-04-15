@@ -132,7 +132,7 @@ const TaskList: React.FC = () => {
           if (task.status === 'in-progress' && task.startTime) {
             const currentTime = Date.now()
             const pausedDuration = task.pausedDuration || 0
-            const elapsedTime = Math.floor((currentTime - task.startTime - pausedDuration) / 1000 / 60)
+            const elapsedTime = Math.max(0, Math.floor((currentTime - task.startTime - pausedDuration) / 1000 / 60)) // 确保时间不为负数
             return { ...task, actualTime: elapsedTime }
           }
           return task
@@ -206,21 +206,35 @@ const TaskList: React.FC = () => {
             const allSubTasksCompleted = updatedSubTasks.every(subTask => subTask.status === 'completed')
             
             if (allSubTasksCompleted) {
-              // 所有子任务完成，自动标记学科为完成
+              // 所有子任务完成，检查实际时间是否达到预计时间
               const currentTime = Date.now()
               const pausedDuration = task.pausedDuration || 0
-              const elapsedTime = Math.floor((currentTime - (task.startTime || currentTime) - pausedDuration) / 1000 / 60)
+              const elapsedTime = Math.max(0, Math.floor((currentTime - (task.startTime || currentTime) - pausedDuration) / 1000 / 60)) // 确保时间不为负数
+              const actualTime = Math.max(elapsedTime, task.actualTime || 0)
+              
+              if (actualTime >= task.estimatedTime) {
+                // 实际时间达到预计时间，标记任务为完成
+                return {
+                  ...task,
+                  subTasks: updatedSubTasks,
+                  status: 'completed' as const,
+                  actualTime: actualTime
+                }
+              } else {
+                // 实际时间未达到预计时间，保持任务为进行中或待开始状态
+                return {
+                  ...task,
+                  subTasks: updatedSubTasks,
+                  actualTime: actualTime
+                }
+              }
+            } else {
+              // 子任务未全部完成，回退任务状态
               return {
                 ...task,
                 subTasks: updatedSubTasks,
-                status: 'completed' as const,
-                actualTime: elapsedTime
+                status: 'pending' as const
               }
-            }
-            
-            return {
-              ...task,
-              subTasks: updatedSubTasks
             }
           }
           return task
@@ -299,7 +313,7 @@ const TaskList: React.FC = () => {
           ? { 
               ...task, 
               status: 'in-progress', 
-              startTime: Date.now(),
+              startTime: task.pauseTime ? Date.now() : task.startTime || Date.now(),
               pauseTime: undefined
             } 
           : task
@@ -315,11 +329,13 @@ const TaskList: React.FC = () => {
           const pauseTime = Date.now()
           const pausedDuration = task.pausedDuration || 0
           const newPausedDuration = pausedDuration + (pauseTime - task.startTime)
+          const actualTime = Math.max(0, Math.floor(newPausedDuration / 1000 / 60)) + (task.actualTime || 0)
           return { 
             ...task, 
             status: 'pending', 
             pauseTime,
-            pausedDuration: newPausedDuration
+            pausedDuration: newPausedDuration,
+            actualTime: actualTime
           }
         }
         return task
@@ -330,11 +346,23 @@ const TaskList: React.FC = () => {
   const handleFinishTask = (taskId: string, e: React.MouseEvent) => {
     e.stopPropagation()
     setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId 
-          ? { ...task, status: 'completed' } 
-          : task
-      )
+      prevTasks.map(task => {
+        if (task.id === taskId) {
+          // 检查是否所有子任务都已完成
+          const allSubTasksCompleted = task.subTasks.every(subTask => subTask.status === 'completed')
+          // 检查实际时间是否达到预计时间
+          const actualTime = task.actualTime || 0
+          
+          if (allSubTasksCompleted && actualTime >= task.estimatedTime) {
+            // 所有子任务完成且实际时间达到预计时间，标记任务为完成
+            return { ...task, status: 'completed' }
+          } else {
+            // 子任务未全部完成或实际时间未达到预计时间，保持任务为待开始状态
+            return { ...task, status: 'pending' }
+          }
+        }
+        return task
+      })
     )
   }
 
@@ -350,12 +378,73 @@ const TaskList: React.FC = () => {
   }
 
   const handleTimerClose = () => {
+    if (currentTask) {
+      // 无论计时器是否暂停，都更新任务的状态为暂停
+      setTasks(prevTasks => 
+        prevTasks.map(task => {
+          if (task.id === currentTask.id && task.status === 'in-progress' && task.startTime) {
+            const pauseTime = Date.now()
+            const pausedDuration = task.pausedDuration || 0
+            const newPausedDuration = pausedDuration + (pauseTime - task.startTime)
+            const actualTime = Math.max(0, Math.floor(newPausedDuration / 1000 / 60)) + (task.actualTime || 0)
+            return { 
+              ...task, 
+              status: 'pending', 
+              pauseTime,
+              pausedDuration: newPausedDuration,
+              actualTime: actualTime
+            }
+          }
+          return task
+        })
+      )
+    }
     setTimerVisible(false)
+  }
+
+  const handleTimerPause = (isPaused: boolean) => {
+    if (currentTask) {
+      if (isPaused) {
+        // 暂停计时器
+        setTasks(prevTasks => 
+          prevTasks.map(task => {
+            if (task.id === currentTask.id && task.status === 'in-progress' && task.startTime) {
+              const pauseTime = Date.now()
+              const pausedDuration = task.pausedDuration || 0
+              const newPausedDuration = pausedDuration + (pauseTime - task.startTime)
+              const actualTime = Math.max(0, Math.floor(newPausedDuration / 1000 / 60)) + (task.actualTime || 0)
+              return { 
+                ...task, 
+                status: 'pending', 
+                pauseTime,
+                pausedDuration: newPausedDuration,
+                actualTime: actualTime
+              }
+            }
+            return task
+          })
+        )
+      } else {
+        // 继续计时器
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === currentTask.id 
+              ? { 
+                  ...task, 
+                  status: 'in-progress', 
+                  startTime: Date.now(),
+                  pauseTime: undefined
+                } 
+              : task
+          )
+        )
+      }
+    }
   }
 
   const handleTimerFinish = (duration: number) => {
     if (currentTask) {
-      const minutes = Math.floor(duration / 60)
+      const minutes = Math.max(0, Math.floor(duration / 60)) // 确保时间不为负数
       setTasks(prevTasks => 
         prevTasks.map(task => 
           task.id === currentTask.id 
@@ -406,7 +495,7 @@ const TaskList: React.FC = () => {
               </div>
               <div className="task-description">{task.description}</div>
               <div className="task-actions">
-                {task.status === 'pending' && (
+                {task.status === 'pending' && !task.pauseTime && (
                   <button 
                     className="start" 
                     onClick={(e) => {
@@ -419,6 +508,21 @@ const TaskList: React.FC = () => {
                     }}
                   >
                     开始
+                  </button>
+                )}
+                {task.status === 'pending' && task.pauseTime && (
+                  <button 
+                    className="start" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      try {
+                        handleStartTask(task.id, e);
+                      } catch (error) {
+                        console.error('继续任务出错:', error);
+                      }
+                    }}
+                  >
+                    继续
                   </button>
                 )}
                 {task.status === 'in-progress' && (
@@ -463,7 +567,7 @@ const TaskList: React.FC = () => {
             {task.subTasks && (
               <div className="subtasks-container">
                 {task.subTasks.map(subTask => (
-                  <div key={subTask.id} className="subtask-item" onClick={(e) => e.stopPropagation()}>
+                  <div key={subTask.id} className={`subtask-item ${subTask.status === 'completed' ? 'completed' : ''}`} onClick={(e) => e.stopPropagation()}>
                     <div 
                       className="subtask-checkbox" 
                       onClick={(e) => {
@@ -552,7 +656,9 @@ const TaskList: React.FC = () => {
           isVisible={timerVisible}
           onClose={handleTimerClose}
           onFinish={handleTimerFinish}
+          onPause={handleTimerPause}
           taskName={`${currentTask.subject}: ${currentTask.description}`}
+          initialTime={(currentTask.actualTime || 0) * 60} // 转换为秒
         />
       )}
     </div>

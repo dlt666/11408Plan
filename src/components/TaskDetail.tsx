@@ -24,6 +24,17 @@ interface LearningLog {
   notes: string
 }
 
+interface MistakeRecord {
+  id: string
+  taskId: string
+  date: string
+  question: string
+  wrongAnswer: string
+  correctAnswer: string
+  reason: string
+  subject: string
+}
+
 const TaskDetail: React.FC = () => {
   const { id: taskId } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -39,8 +50,15 @@ const TaskDetail: React.FC = () => {
     content: '',
     notes: ''
   })
+  const [newMistake, setNewMistake] = useState({
+    question: '',
+    wrongAnswer: '',
+    correctAnswer: '',
+    reason: ''
+  })
   const [isEditing, setIsEditing] = useState(false)
   const [editedTask, setEditedTask] = useState<Task | null>(null)
+  const [mistakes, setMistakes] = useState<MistakeRecord[]>([])
 
   useEffect(() => {
     if (!taskId) return
@@ -56,6 +74,11 @@ const TaskDetail: React.FC = () => {
     const allLogs = JSON.parse(localStorage.getItem('learningLogs') || '[]')
     const taskLogs = allLogs.filter((log: LearningLog) => log.taskId === taskId)
     setLogs(taskLogs)
+
+    // 加载错题记录
+    const allMistakes = JSON.parse(localStorage.getItem('mistakeRecords') || '[]')
+    const taskMistakes = allMistakes.filter((mistake: MistakeRecord) => mistake.taskId === taskId)
+    setMistakes(taskMistakes)
   }, [taskId])
 
   const handleStartTask = () => {
@@ -98,13 +121,15 @@ const TaskDetail: React.FC = () => {
   }
 
   const handleSaveLog = () => {
-    if (!task || !taskId || !newLog.content) return
+    if (!task || !taskId) return
     const allLogs = JSON.parse(localStorage.getItem('learningLogs') || '[]')
+    // 自动生成学习内容，包含科目和学习时间
+    const autoContent = `${task.subject}学习 ${task.actualTime} 分钟`
     const newLearningLog: LearningLog = {
       id: Date.now().toString(),
       taskId: taskId,
       date: new Date().toISOString().split('T')[0],
-      content: newLog.content,
+      content: newLog.content || autoContent,
       duration: task.actualTime,
       notes: newLog.notes
     }
@@ -112,6 +137,25 @@ const TaskDetail: React.FC = () => {
     localStorage.setItem('learningLogs', JSON.stringify(updatedLogs))
     setLogs([newLearningLog, ...logs])
     setNewLog({ content: '', notes: '' })
+  }
+
+  const handleSaveMistake = () => {
+    if (!task || !taskId || !newMistake.question || !newMistake.correctAnswer) return
+    const allMistakes = JSON.parse(localStorage.getItem('mistakeRecords') || '[]')
+    const newMistakeRecord: MistakeRecord = {
+      id: Date.now().toString(),
+      taskId: taskId,
+      date: new Date().toISOString().split('T')[0],
+      question: newMistake.question,
+      wrongAnswer: newMistake.wrongAnswer,
+      correctAnswer: newMistake.correctAnswer,
+      reason: newMistake.reason,
+      subject: task.subject
+    }
+    const updatedMistakes = [newMistakeRecord, ...allMistakes]
+    localStorage.setItem('mistakeRecords', JSON.stringify(updatedMistakes))
+    setMistakes([newMistakeRecord, ...mistakes])
+    setNewMistake({ question: '', wrongAnswer: '', correctAnswer: '', reason: '' })
   }
 
   const handleUpdateTask = () => {
@@ -273,6 +317,80 @@ const TaskDetail: React.FC = () => {
                 <div className="log-content">{log.content}</div>
                 {log.notes && (
                   <div className="log-notes">{log.notes}</div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="mistake-section">
+        <h3>错题回顾</h3>
+        <div className="mistake-form">
+          <div className="form-group">
+            <label>题目：</label>
+            <textarea 
+              placeholder="输入题目内容..."
+              value={newMistake.question}
+              onChange={(e) => setNewMistake({ ...newMistake, question: e.target.value })}
+              rows={3}
+            />
+          </div>
+          <div className="form-group">
+            <label>错误答案：</label>
+            <textarea 
+              placeholder="输入你的错误答案..."
+              value={newMistake.wrongAnswer}
+              onChange={(e) => setNewMistake({ ...newMistake, wrongAnswer: e.target.value })}
+              rows={2}
+            />
+          </div>
+          <div className="form-group">
+            <label>正确答案：</label>
+            <textarea 
+              placeholder="输入正确答案..."
+              value={newMistake.correctAnswer}
+              onChange={(e) => setNewMistake({ ...newMistake, correctAnswer: e.target.value })}
+              rows={2}
+            />
+          </div>
+          <div className="form-group">
+            <label>错误原因：</label>
+            <textarea 
+              placeholder="分析错误原因..."
+              value={newMistake.reason}
+              onChange={(e) => setNewMistake({ ...newMistake, reason: e.target.value })}
+              rows={2}
+            />
+          </div>
+          <button className="save-log-button" onClick={handleSaveMistake}>
+            <FontAwesomeIcon icon={faSave} /> 保存错题
+          </button>
+        </div>
+
+        <div className="mistake-list">
+          {mistakes.length === 0 ? (
+            <div className="no-logs">暂无错题记录</div>
+          ) : (
+            mistakes.map(mistake => (
+              <div key={mistake.id} className="log-item">
+                <div className="log-header">
+                  <span className="log-date">{mistake.date}</span>
+                  <span className="log-duration">{mistake.subject}</span>
+                </div>
+                <div className="log-content">
+                  <strong>题目：</strong>{mistake.question}
+                </div>
+                <div className="log-content">
+                  <strong>错误答案：</strong>{mistake.wrongAnswer}
+                </div>
+                <div className="log-content">
+                  <strong>正确答案：</strong>{mistake.correctAnswer}
+                </div>
+                {mistake.reason && (
+                  <div className="log-notes">
+                    <strong>错误原因：</strong>{mistake.reason}
+                  </div>
                 )}
               </div>
             ))

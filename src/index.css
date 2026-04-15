@@ -307,104 +307,141 @@ body {
 .task-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 0 1rem;
 }
 
 .task-item {
-  background-color: var(--card-color);
-  border-radius: var(--border-radius);
-  padding: 1rem;
-  box-shadow: var(--shadow);
-  border-left: 4px solid var(--primary-color);
-  transition: var(--transition);
-  margin-bottom: 0.5rem;
+  background: var(--card-color);
+  border-radius: 8px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-left: 3px solid var(--primary-color);
+  transition: all 0.2s ease;
 }
 
 .task-item:hover {
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
 .task-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .task-subject {
-  font-weight: bold;
-  color: var(--primary-color);
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1.2rem;
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .task-time {
   font-size: 0.9rem;
   color: var(--text-light);
   white-space: nowrap;
+  background: #f8f9fa;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
 }
 
 .task-description {
   margin-bottom: 1rem;
   color: var(--text-color);
   line-height: 1.4;
-  margin-left: 2rem;
+  font-size: 0.95rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid var(--border-color);
 }
 
 .task-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  margin-left: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
 }
 
 /* 子任务样式 */
 .subtasks-container {
-  background: #f8f9fa;
+  background: #f8f9ff;
   border-radius: 0 0 8px 8px;
-  padding: 1rem;
-  margin: 0 1rem 1rem 1rem;
-  border-top: 1px solid #e9ecef;
+  padding: 1.2rem;
+  margin: 1rem -1.2rem -1.2rem -1.2rem;
+  border-top: 1px solid var(--border-color);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .subtask-item {
   display: flex;
   align-items: center;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  gap: 0.75rem;
+  background: white;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .subtask-item:hover {
-  background-color: rgba(0, 123, 255, 0.05);
+  background-color: rgba(25, 118, 210, 0.05);
+  transform: translateX(4px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.subtask-item:last-child {
+  margin-bottom: 0;
 }
 
 .subtask-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border: 2px solid #ced4da;
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   margin-right: 0.75rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  background-color: white;
 }
 
 .subtask-checkbox:hover {
   border-color: var(--primary-color);
+  background-color: rgba(25, 118, 210, 0.05);
 }
 
 .subtask-checkbox .check-icon {
-  color: var(--success-color);
-  font-size: 14px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .checkbox-empty {
   width: 12px;
   height: 12px;
+}
+
+/* 完成状态的样式 */
+.subtask-item.completed .subtask-checkbox {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.subtask-item.completed .subtask-description {
+  text-decoration: line-through;
+  color: #6c757d;
 }
 
 .subtask-description {
@@ -424,31 +461,43 @@ body {
 }
 
 .edit-subtask {
-  background: transparent;
-  border: none;
+  background: rgba(25, 118, 210, 0.1);
+  border: 1px solid var(--primary-color);
   color: var(--primary-color);
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
 }
 
 .edit-subtask:hover {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .delete-subtask {
-  background: transparent;
-  border: none;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid var(--error-color);
   color: var(--error-color);
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
 }
 
 .delete-subtask:hover {
-  background-color: rgba(244, 67, 54, 0.1);
+  background-color: var(--error-color);
+  color: white;
 }
 
 .add-subtask {
@@ -477,45 +526,57 @@ body {
 .task-actions button {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: var(--transition);
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  min-width: 70px;
+  justify-content: center;
 }
 
 .task-actions button.start {
-  background-color: var(--primary-color);
+  background: var(--primary-color);
   color: white;
+  border: 1px solid var(--primary-color);
 }
 
 .task-actions button.start:hover {
-  background-color: var(--primary-dark);
-  box-shadow: var(--shadow-hover);
+  background: var(--primary-dark);
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+  transform: translateY(-1px);
 }
 
 .task-actions button.pause {
-  background-color: var(--warning-color);
+  background: var(--warning-color);
   color: white;
+  border: 1px solid var(--warning-color);
 }
 
 .task-actions button.pause:hover {
-  background-color: #e68a00;
-  box-shadow: var(--shadow-hover);
+  background: #e68a00;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .task-actions button.finish {
-  background-color: var(--success-color);
+  background: var(--success-color);
   color: white;
+  border: 1px solid var(--success-color);
 }
 
 .task-actions button.finish:hover {
-  background-color: #45a049;
-  box-shadow: var(--shadow-hover);
+  background: #45a049;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+  transform: translateY(-1px);
 }
 
 .task-actions button:hover {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 .plan-manager {
@@ -785,20 +846,25 @@ body {
 }
 
 .edit-button, .save-button {
-  background: var(--secondary-color);
+  background: var(--primary-dark);
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
+  border: 1px solid var(--primary-dark);
+  padding: 0.6rem 1.2rem;
   border-radius: var(--border-radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .edit-button:hover, .save-button:hover {
-  background: var(--primary-color);
+  background: #0A3871;
+  border-color: #0A3871;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .task-info {
@@ -922,34 +988,46 @@ body {
   font-weight: bold;
 }
 
-.learning-log-section {
+.learning-log-section, .mistake-section {
   background: var(--card-color);
   padding: 1.5rem;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
+  margin-bottom: 2rem;
 }
 
-.learning-log-section h3 {
+.learning-log-section h3, .mistake-section h3 {
   margin-bottom: 1.5rem;
   color: var(--primary-color);
 }
 
-.log-form {
+.log-form, .mistake-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: #f9f9f9;
   border-radius: var(--border-radius);
 }
 
-.log-form textarea {
+.log-form textarea, .mistake-form textarea {
   padding: 1rem;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-family: inherit;
   resize: vertical;
+}
+
+.mistake-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mistake-form .form-group label {
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 .save-log-button {
@@ -970,7 +1048,7 @@ body {
   background: var(--secondary-color);
 }
 
-.log-list {
+.log-list, .mistake-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1187,7 +1265,7 @@ body {
   gap: 0.5rem;
 }
 
-.edit-button, .delete-button {
+.plan-actions .edit-button, .plan-actions .delete-button {
   background: transparent;
   border: none;
   cursor: pointer;
@@ -1196,12 +1274,12 @@ body {
   transition: background 0.3s ease;
 }
 
-.edit-button:hover {
+.plan-actions .edit-button:hover {
   background: rgba(33, 150, 243, 0.1);
   color: var(--secondary-color);
 }
 
-.delete-button:hover {
+.plan-actions .delete-button:hover {
   background: rgba(244, 67, 54, 0.1);
   color: var(--error-color);
 }
@@ -1557,18 +1635,86 @@ body {
 }
 
 .task-list {
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.task-list li {
+.task-item {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.task-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem;
-  background: white;
-  border-radius: var(--border-radius);
+  padding: 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.task-mistakes {
+  padding: 1rem;
+  background: #fef9f9;
+  border-top: 1px solid #f0e6e6;
+}
+
+.task-mistakes h5 {
   margin-bottom: 0.8rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: var(--error-color);
+  font-size: 0.95rem;
+}
+
+.mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.mistake-item {
+  background: white;
+  padding: 0.8rem;
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--error-color);
+  font-size: 0.9rem;
+}
+
+.mistake-question {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.mistake-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.wrong-answer {
+  color: var(--error-color);
+  font-size: 0.85rem;
+}
+
+.correct-answer {
+  color: var(--success-color);
+  font-size: 0.85rem;
+}
+
+.mistake-reason {
+  color: #666;
+  font-style: italic;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
 }
 
 .task-subject {

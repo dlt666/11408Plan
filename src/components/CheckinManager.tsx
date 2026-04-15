@@ -11,6 +11,13 @@ interface CheckinData {
     id: string
     subject: string
     duration: number
+    mistakes?: {
+      id: string
+      question: string
+      wrongAnswer: string
+      correctAnswer: string
+      reason: string
+    }[]
   }[]
   logs: {
     id: string
@@ -18,6 +25,17 @@ interface CheckinData {
     content: string
     notes: string
   }[]
+}
+
+interface MistakeRecord {
+  id: string
+  taskId: string
+  date: string
+  question: string
+  wrongAnswer: string
+  correctAnswer: string
+  reason: string
+  subject: string
 }
 
 interface LearningLog {
@@ -47,15 +65,52 @@ const CheckinManager: React.FC = () => {
     const allLogs = JSON.parse(localStorage.getItem('learningLogs') || '[]')
     const filteredLogs = allLogs.filter((log: LearningLog) => log.date === selectedDate)
     
+    // 加载错题记录
+    const allMistakes = JSON.parse(localStorage.getItem('mistakeRecords') || '[]')
+    const filteredMistakes = allMistakes.filter((mistake: MistakeRecord) => mistake.date === selectedDate)
+    
+    // 加载当天的任务
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+    
     // 查找或创建当天的打卡记录
     const existingCheckin = checkins.find(c => c.date === selectedDate)
     if (existingCheckin) {
-      setSelectedCheckin({ ...existingCheckin, logs: filteredLogs })
+      // 为现有打卡记录添加错题信息
+      const updatedTasks = existingCheckin.tasks.map(task => {
+        const taskMistakes = filteredMistakes.filter((mistake: MistakeRecord) => mistake.taskId === task.id)
+        return {
+          ...task,
+          mistakes: taskMistakes.map((mistake: MistakeRecord) => ({
+            id: mistake.id,
+            question: mistake.question,
+            wrongAnswer: mistake.wrongAnswer,
+            correctAnswer: mistake.correctAnswer,
+            reason: mistake.reason
+          }))
+        }
+      })
+      setSelectedCheckin({ ...existingCheckin, logs: filteredLogs, tasks: updatedTasks })
     } else {
+      // 为未打卡的日期创建任务列表
+      const taskSummaries = tasks.map((task: any) => {
+        const taskMistakes = filteredMistakes.filter((mistake: MistakeRecord) => mistake.taskId === task.id)
+        return {
+          id: task.id,
+          subject: task.subject,
+          duration: task.actualTime || 0,
+          mistakes: taskMistakes.map((mistake: MistakeRecord) => ({
+            id: mistake.id,
+            question: mistake.question,
+            wrongAnswer: mistake.wrongAnswer,
+            correctAnswer: mistake.correctAnswer,
+            reason: mistake.reason
+          }))
+        }
+      })
       const newCheckin: CheckinData = {
         date: selectedDate,
         checked: false,
-        tasks: [],
+        tasks: taskSummaries,
         logs: filteredLogs
       }
       setSelectedCheckin(newCheckin)
@@ -78,13 +133,27 @@ const CheckinManager: React.FC = () => {
     
     // 加载当天的任务
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
-    const completedTasks = tasks.filter((task: any) => task.status === 'completed')
     
-    const taskSummaries = completedTasks.map((task: any) => ({
-      id: task.id,
-      subject: task.subject,
-      duration: task.actualTime
-    }))
+    // 加载当天的错题记录
+    const allMistakes = JSON.parse(localStorage.getItem('mistakeRecords') || '[]')
+    const todayMistakes = allMistakes.filter((mistake: MistakeRecord) => mistake.date === today)
+    
+    const taskSummaries = tasks.map((task: any) => {
+      // 查找该任务对应的错题
+      const taskMistakes = todayMistakes.filter((mistake: MistakeRecord) => mistake.taskId === task.id)
+      return {
+        id: task.id,
+        subject: task.subject,
+        duration: task.actualTime || 0,
+        mistakes: taskMistakes.map((mistake: MistakeRecord) => ({
+          id: mistake.id,
+          question: mistake.question,
+          wrongAnswer: mistake.wrongAnswer,
+          correctAnswer: mistake.correctAnswer,
+          reason: mistake.reason
+        }))
+      }
+    })
 
     const updatedCheckin: CheckinData = {
       ...selectedCheckin,
@@ -126,16 +195,39 @@ const CheckinManager: React.FC = () => {
             <div className="tasks-section">
               <h4>学习任务</h4>
               {selectedCheckin.tasks.length > 0 ? (
-                <ul className="task-list">
+                <div className="task-list">
                   {selectedCheckin.tasks.map(task => (
-                    <li key={task.id} onClick={() => navigate(`/tasks/${task.id}`)} style={{ cursor: 'pointer' }}>
-                      <span className="task-subject">{task.subject}</span>
-                      <span className="task-duration">
-                        <FontAwesomeIcon icon={faClock} /> {task.duration} 分钟
-                      </span>
-                    </li>
+                    <div key={task.id} className="task-item" onClick={() => navigate(`/tasks/${task.id}`)} style={{ cursor: 'pointer' }}>
+                      <div className="task-header">
+                        <span className="task-subject">{task.subject}</span>
+                        <span className="task-duration">
+                          <FontAwesomeIcon icon={faClock} /> {task.duration} 分钟
+                        </span>
+                      </div>
+                      {task.mistakes && task.mistakes.length > 0 && (
+                        <div className="task-mistakes">
+                          <h5>错题记录 ({task.mistakes.length}题)</h5>
+                          <div className="mistakes-list">
+                            {task.mistakes.map((mistake, index) => (
+                              <div key={mistake.id} className="mistake-item">
+                                <div className="mistake-question">
+                                  <strong>{index + 1}. {mistake.question}</strong>
+                                </div>
+                                <div className="mistake-answers">
+                                  <div className="wrong-answer">错误答案: {mistake.wrongAnswer}</div>
+                                  <div className="correct-answer">正确答案: {mistake.correctAnswer}</div>
+                                </div>
+                                {mistake.reason && (
+                                  <div className="mistake-reason">错误原因: {mistake.reason}</div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p className="no-tasks">暂无学习任务</p>
               )}
