@@ -189,9 +189,9 @@ const TaskList: React.FC = () => {
     e.stopPropagation()
     setTasks(prevTasks => {
       try {
-        const updatedTasks = prevTasks.map(task => {
+        const updatedTasks: Task[] = prevTasks.map(task => {
           if (task.id === taskId) {
-            const updatedSubTasks = task.subTasks.map(subTask => {
+            const updatedSubTasks: SubTask[] = task.subTasks.map(subTask => {
               if (subTask.id === subTaskId) {
                 return {
                   ...subTask,
@@ -213,7 +213,7 @@ const TaskList: React.FC = () => {
               return {
                 ...task,
                 subTasks: updatedSubTasks,
-                status: 'completed',
+                status: 'completed' as const,
                 actualTime: elapsedTime
               }
             }
@@ -338,7 +338,7 @@ const TaskList: React.FC = () => {
     )
   }
 
-  const handleEstimatedTimeChange = (taskId: string, time: number, e: React.MouseEvent) => {
+  const handleEstimatedTimeChange = (taskId: string, time: number, e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation()
     setTasks(prevTasks => 
       prevTasks.map(task => 

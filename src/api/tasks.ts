@@ -105,7 +105,7 @@ export const startTask = async (taskId: string): Promise<Task | null> => {
   return updateTask(taskId, {
     status: 'in-progress',
     start_time: new Date().toISOString(),
-    pause_time: null
+    pause_time: undefined
   })
 }
 

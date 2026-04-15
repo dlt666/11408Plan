@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheckCircle, faCalendar } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 
 interface CheckinData {
   date: string
@@ -20,7 +20,7 @@ interface CheckinCalendarProps {
 const CheckinCalendar: React.FC<CheckinCalendarProps> = ({ onDateSelect, selectedDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
-  const [checkins, setCheckins] = useState<CheckinData[]>(() => {
+  const [checkins] = useState<CheckinData[]>(() => {
     const savedCheckins = localStorage.getItem('checkins')
     return savedCheckins ? JSON.parse(savedCheckins) : []
   })
@@ -62,7 +62,6 @@ const CheckinCalendar: React.FC<CheckinCalendarProps> = ({ onDateSelect, selecte
       const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
       const prevMonthDays = getDaysInMonth(prevMonth, prevYear)
       const day = prevMonthDays - i + 1
-      const date = formatDate(day, prevMonth, prevYear)
       days.push(
         <div key={`prev-${i}`} className="calendar-day other-month">
           {day}
@@ -89,8 +88,6 @@ const CheckinCalendar: React.FC<CheckinCalendarProps> = ({ onDateSelect, selecte
     // 添加下个月的日期
     const remainingDays = 42 - days.length
     for (let i = 1; i <= remainingDays; i++) {
-      const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1
-      const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear
       days.push(
         <div key={`next-${i}`} className="calendar-day other-month">
           {i}

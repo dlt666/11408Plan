@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-// 从环境变量读取（正确写法）
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+// 从环境变量读取
+const supabaseUrl = process.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY as string
 
 // 创建客户端
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)

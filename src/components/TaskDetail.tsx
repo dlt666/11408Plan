@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faCheckCircle, faClock, faEdit, faTrash, faSave } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faCheckCircle, faClock, faEdit, faSave } from '@fortawesome/free-solid-svg-icons'
 
 interface Task {
   id: string
@@ -27,6 +27,12 @@ interface LearningLog {
 const TaskDetail: React.FC = () => {
   const { id: taskId } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  
+  // 如果没有taskId，重定向到任务列表
+  if (!taskId) {
+    navigate('/tasks')
+    return null
+  }
   const [task, setTask] = useState<Task | null>(null)
   const [logs, setLogs] = useState<LearningLog[]>([])
   const [newLog, setNewLog] = useState({
@@ -155,7 +161,7 @@ const TaskDetail: React.FC = () => {
       </div>
 
       <div className="task-info">
-        {isEditing ? (
+        {isEditing && editedTask ? (
           <div className="edit-form">
             <div className="form-group">
               <label>科目：</label>

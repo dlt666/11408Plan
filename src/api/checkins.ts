@@ -136,7 +136,7 @@ export const getCheckinStats = async (): Promise<{
   }
   
   const total = data.length
-  const checked = data.filter((item: Checkin) => item.checked).length
+  const checked = data.filter((item: { checked: boolean }) => item.checked).length
   const percentage = total > 0 ? Math.round((checked / total) * 100) : 0
   
   return { total, checked, percentage }
