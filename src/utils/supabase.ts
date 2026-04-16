@@ -1,8 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
 // 从环境变量读取
-const supabaseUrl = process.env.VITE_SUPABASE_URL as string
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY as string
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+// 确保环境变量存在
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
 
 // 创建客户端
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)

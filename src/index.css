@@ -696,12 +696,14 @@ body {
   }
   
   .app-nav button {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    min-width: 60px;
   }
   
   .app-content {
     padding: 0.5rem;
+    padding-bottom: 90px;
   }
   
   .countdown-container,
@@ -719,7 +721,39 @@ body {
   }
   
   .plan-templates {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+  }
+  
+  .task-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .task-actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 60px;
+  }
+  
+  .plan-template {
+    padding: 1rem;
+  }
+  
+  .plan-template h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .plan-template p {
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .select-button {
+    padding: 0.6rem;
+    font-size: 0.8rem;
   }
 }
 

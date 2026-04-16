@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate, Routes, Route } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome, faCalendarAlt, faTasks, faCheckSquare } from '@fortawesome/free-solid-svg-icons'
 import HomePage from './components/HomePage'
@@ -74,18 +73,6 @@ const Navigation = () => {
 // 应用主组件
 function App() {
   const location = useLocation()
-
-  // 路由守卫 - beforeEach
-  useEffect(() => {
-    console.log('路由守卫 - beforeEach:', location.pathname)
-    // 这里可以添加路由守卫逻辑，比如权限验证等
-  }, [location.pathname])
-
-  // 路由守卫 - afterEach
-  useEffect(() => {
-    console.log('路由守卫 - afterEach:', location.pathname)
-    // 这里可以添加路由后置逻辑，比如页面埋点等
-  }, [location.pathname])
 
   // 检查是否显示导航栏（任务详情页不显示）
   const showNavigation = !location.pathname.startsWith('/tasks/')
