@@ -133,8 +133,10 @@ const TaskList: React.FC = () => {
           if (task.status === 'in-progress' && task.startTime) {
             const currentTime = Date.now()
             const pausedDuration = task.pausedDuration || 0
-            const elapsedTime = Math.max(0, Math.floor((currentTime - task.startTime - pausedDuration) / 1000 / 60)) // 确保时间不为负数
-            return { ...task, actualTime: elapsedTime }
+            // 计算当前计时段的时间，并加上之前的累计时间
+            const currentSegmentTime = Math.max(0, Math.floor((currentTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
+            const totalActualTime = (task.actualTime || 0) + currentSegmentTime
+            return { ...task, actualTime: totalActualTime }
           }
           return task
         })
@@ -316,16 +318,16 @@ const TaskList: React.FC = () => {
       setTimerVisible(true)
     }
     
-    // 如果任务已经是in-progress状态，不需要修改startTime
-    // 这样计时器会从之前的时间继续计时
+    // 每次开始任务时，都以当前实际时间为起点，保留之前的累计时间
     setTasks(prevTasks => 
       prevTasks.map(task => 
-        task.id === taskId && task.status !== 'in-progress' 
+        task.id === taskId 
           ? { 
               ...task, 
               status: 'in-progress', 
-              startTime: task.pauseTime ? Date.now() : task.startTime || Date.now(),
+              startTime: Date.now(),
               pauseTime: undefined
+              // 保留pausedDuration，确保实际学习时间是每一段进行时间的累加
             } 
           : task
       )
@@ -338,15 +340,13 @@ const TaskList: React.FC = () => {
       prevTasks.map(task => {
         if (task.id === taskId && task.status === 'in-progress' && task.startTime) {
           const pauseTime = Date.now()
-          const pausedDuration = task.pausedDuration || 0
-          const newPausedDuration = pausedDuration + (pauseTime - task.startTime)
-          const actualTime = Math.max(0, Math.floor(newPausedDuration / 1000 / 60)) + (task.actualTime || 0)
+          const currentSegmentTime = Math.max(0, Math.floor((pauseTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
+          const totalActualTime = (task.actualTime || 0) + currentSegmentTime
           return { 
             ...task, 
             status: 'pending', 
             pauseTime,
-            pausedDuration: newPausedDuration,
-            actualTime: actualTime
+            actualTime: totalActualTime
           }
         }
         return task
@@ -389,8 +389,7 @@ const TaskList: React.FC = () => {
   }
 
   const handleTimerClose = () => {
-    // 只关闭计时器窗口，不改变任务状态
-    // 这样定时更新函数会继续在后台更新任务的实际时间
+    // 关闭计时器窗口时，任务状态已经在FullScreenTimer中被设置为暂停
     setTimerVisible(false)
   }
 
@@ -402,22 +401,20 @@ const TaskList: React.FC = () => {
           prevTasks.map(task => {
             if (task.id === currentTask.id && task.status === 'in-progress' && task.startTime) {
               const pauseTime = Date.now()
-              const pausedDuration = task.pausedDuration || 0
-              const newPausedDuration = pausedDuration + (pauseTime - task.startTime)
-              const actualTime = Math.max(0, Math.floor(newPausedDuration / 1000 / 60)) + (task.actualTime || 0)
+              const currentSegmentTime = Math.max(0, Math.floor((pauseTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
+              const totalActualTime = (task.actualTime || 0) + currentSegmentTime
               return { 
                 ...task, 
                 status: 'pending', 
                 pauseTime,
-                pausedDuration: newPausedDuration,
-                actualTime: actualTime
+                actualTime: totalActualTime
               }
             }
             return task
           })
         )
       } else {
-        // 继续计时器
+        // 继续计时器 - 从当前时间开始新的计时段
         setTasks(prevTasks => 
           prevTasks.map(task => 
             task.id === currentTask.id 
@@ -440,12 +437,14 @@ const TaskList: React.FC = () => {
       setTasks(prevTasks => 
         prevTasks.map(task => {
           if (task.id === currentTask.id) {
+            // 累加实际学习时间，而不是覆盖
+            const totalActualTime = (task.actualTime || 0) + minutes
             // 只有当实际用时大于或等于预估时间时，才标记为完成
-            const isCompleted = minutes >= task.estimatedTime
+            const isCompleted = totalActualTime >= task.estimatedTime
             return { 
               ...task, 
               status: isCompleted ? 'completed' : 'pending', 
-              actualTime: minutes 
+              actualTime: totalActualTime 
             }
           }
           return task
@@ -460,7 +459,7 @@ const TaskList: React.FC = () => {
       <h2>每日学习任务</h2>
       {tasks && tasks.length > 0 ? (
         tasks.map(task => (
-          <React.Fragment key={task.id}>
+          <div key={task.id} className="task-container">
             <div 
               className="task-item" 
               onClick={() => navigate(`/tasks/${task.id}`)}
@@ -511,7 +510,7 @@ const TaskList: React.FC = () => {
                 )}
                 {task.status === 'pending' && task.pauseTime && (
                   <button 
-                    className="start" 
+                    className="continue" 
                     onClick={(e) => {
                       e.stopPropagation();
                       try {
@@ -647,7 +646,7 @@ const TaskList: React.FC = () => {
                 </div>
               </div>
             )}
-          </React.Fragment>
+          </div>
         ))
       ) : (
         <div className="no-tasks">

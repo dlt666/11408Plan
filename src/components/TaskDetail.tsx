@@ -3,6 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faCheckCircle, faClock, faEdit, faSave } from '@fortawesome/free-solid-svg-icons'
 
+interface SubTask {
+  id: string
+  description: string
+  status: 'pending' | 'completed'
+  completedAt?: number
+}
+
 interface Task {
   id: string
   subject: string
@@ -13,6 +20,7 @@ interface Task {
   startTime?: number
   pauseTime?: number
   pausedDuration?: number
+  subTasks: SubTask[]
 }
 
 interface LearningLog {
@@ -22,6 +30,7 @@ interface LearningLog {
   content: string
   duration: number
   notes: string
+  images?: string[]
 }
 
 interface MistakeRecord {
@@ -33,6 +42,7 @@ interface MistakeRecord {
   correctAnswer: string
   reason: string
   subject: string
+  images?: string[]
 }
 
 const TaskDetail: React.FC = () => {
@@ -50,12 +60,15 @@ const TaskDetail: React.FC = () => {
     content: '',
     notes: ''
   })
+  const [logImages, setLogImages] = useState<string[]>([])
   const [newMistake, setNewMistake] = useState({
     question: '',
     wrongAnswer: '',
     correctAnswer: '',
     reason: ''
   })
+  const [images, setImages] = useState<string[]>([])
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [editedTask, setEditedTask] = useState<Task | null>(null)
   const [mistakes, setMistakes] = useState<MistakeRecord[]>([])
@@ -66,8 +79,13 @@ const TaskDetail: React.FC = () => {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
     const foundTask = tasks.find((t: Task) => t.id === taskId)
     if (foundTask) {
-      setTask(foundTask)
-      setEditedTask({ ...foundTask })
+      // 确保任务有子任务属性
+      const taskWithSubTasks = {
+        ...foundTask,
+        subTasks: foundTask.subTasks || []
+      }
+      setTask(taskWithSubTasks)
+      setEditedTask({ ...taskWithSubTasks })
     }
 
     // 加载学习日志
@@ -131,12 +149,66 @@ const TaskDetail: React.FC = () => {
       date: new Date().toISOString().split('T')[0],
       content: newLog.content || autoContent,
       duration: task.actualTime,
-      notes: newLog.notes
+      notes: newLog.notes,
+      images: logImages.length > 0 ? logImages : undefined
     }
     const updatedLogs = [newLearningLog, ...allLogs]
     localStorage.setItem('learningLogs', JSON.stringify(updatedLogs))
     setLogs([newLearningLog, ...logs])
     setNewLog({ content: '', notes: '' })
+    setLogImages([])
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+    
+    const remainingSlots = 5 - images.length
+    const filesToProcess = Array.from(files).slice(0, remainingSlots)
+    
+    filesToProcess.forEach((file) => {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setImages(prev => [...prev, event.target.result as string])
+        }
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleImagePreview = (image: string) => {
+    setPreviewImage(image)
+  }
+
+  const closePreview = () => {
+    setPreviewImage(null)
+  }
+
+  const handleLogImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+    
+    const remainingSlots = 5 - logImages.length
+    const filesToProcess = Array.from(files).slice(0, remainingSlots)
+    
+    filesToProcess.forEach((file) => {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setLogImages(prev => [...prev, event.target.result as string])
+        }
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const removeLogImage = (index: number) => {
+    setLogImages(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSaveMistake = () => {
@@ -150,12 +222,44 @@ const TaskDetail: React.FC = () => {
       wrongAnswer: newMistake.wrongAnswer,
       correctAnswer: newMistake.correctAnswer,
       reason: newMistake.reason,
-      subject: task.subject
+      subject: task.subject,
+      images: images.length > 0 ? images : undefined
     }
     const updatedMistakes = [newMistakeRecord, ...allMistakes]
     localStorage.setItem('mistakeRecords', JSON.stringify(updatedMistakes))
     setMistakes([newMistakeRecord, ...mistakes])
     setNewMistake({ question: '', wrongAnswer: '', correctAnswer: '', reason: '' })
+    setImages([])
+  }
+
+  const handleSubTaskStatusChange = (subTaskId: string) => {
+    if (!task || !taskId) return
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]')
+    const updatedTasks = tasks.map((t: Task) => {
+      if (t.id === taskId) {
+        const updatedSubTasks = t.subTasks.map(subTask => {
+          if (subTask.id === subTaskId) {
+            return {
+              ...subTask,
+              status: subTask.status === 'pending' ? 'completed' : 'pending',
+              completedAt: subTask.status === 'pending' ? Date.now() : undefined
+            }
+          }
+          return subTask
+        })
+        return {
+          ...t,
+          subTasks: updatedSubTasks
+        }
+      }
+      return t
+    })
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+    const updatedTask = updatedTasks.find((t: Task) => t.id === taskId)
+    if (updatedTask) {
+      setTask(updatedTask)
+      setEditedTask({ ...updatedTask })
+    }
   }
 
   const handleUpdateTask = () => {
@@ -284,6 +388,45 @@ const TaskDetail: React.FC = () => {
         )}
       </div>
 
+      {/* 子任务部分 */}
+      <div className="subtasks-section">
+        <h3>子任务</h3>
+        {task.subTasks && task.subTasks.length > 0 ? (
+          <div>
+            <div className="subtasks-header">
+              <span>子任务完成情况: {task.subTasks.filter(st => st.status === 'completed').length}/{task.subTasks.length}</span>
+              <span className="completion-percentage">
+                完成率: {Math.round((task.subTasks.filter(st => st.status === 'completed').length / task.subTasks.length) * 100)}%
+              </span>
+            </div>
+            <div className="subtasks-list">
+              {task.subTasks.map(subTask => (
+                <div key={subTask.id} className={`subtask-item ${subTask.status === 'completed' ? 'completed' : ''}`}>
+                  <div 
+                    className="subtask-checkbox" 
+                    onClick={() => handleSubTaskStatusChange(subTask.id)}
+                  >
+                    {subTask.status === 'completed' ? (
+                      <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
+                    ) : (
+                      <div className="checkbox-empty"></div>
+                    )}
+                  </div>
+                  <div className="subtask-description">{subTask.description}</div>
+                  <div className="subtask-status">
+                    {subTask.status === 'completed' && (
+                      <span className="completed-text">已完成</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="no-subtasks">暂无子任务</p>
+        )}
+      </div>
+
       <div className="learning-log-section">
         <h3>学习日志</h3>
         <div className="log-form">
@@ -299,6 +442,35 @@ const TaskDetail: React.FC = () => {
             onChange={(e) => setNewLog({ ...newLog, notes: e.target.value })}
             rows={2}
           />
+          <div className="form-group">
+            <label>上传图片（最多5张）：</label>
+            <input 
+              type="file" 
+              multiple 
+              accept="image/*" 
+              onChange={(e) => handleLogImageUpload(e)}
+              disabled={logImages.length >= 5}
+            />
+            <div className="image-preview-container">
+              {logImages.map((image, index) => (
+                <div key={index} className="image-preview">
+                  <img 
+                    src={image} 
+                    alt={`Log Image ${index + 1}`} 
+                    onClick={() => handleImagePreview(image)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <button 
+                    className="remove-image" 
+                    onClick={() => removeLogImage(index)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="image-count">已上传 {logImages.length}/5 张图片</p>
+          </div>
           <button className="save-log-button" onClick={handleSaveLog}>
             <FontAwesomeIcon icon={faSave} /> 保存日志
           </button>
@@ -315,6 +487,23 @@ const TaskDetail: React.FC = () => {
                   <span className="log-duration">{log.duration} 分钟</span>
                 </div>
                 <div className="log-content">{log.content}</div>
+                {log.images && log.images.length > 0 && (
+                  <div className="mistake-images">
+                    <strong>相关图片：</strong>
+                    <div className="image-grid">
+                      {log.images.map((image, index) => (
+                        <div key={index} className="image-item">
+                          <img 
+                            src={image} 
+                            alt={`Log image ${index + 1}`} 
+                            onClick={() => handleImagePreview(image)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {log.notes && (
                   <div className="log-notes">{log.notes}</div>
                 )}
@@ -363,6 +552,35 @@ const TaskDetail: React.FC = () => {
               rows={2}
             />
           </div>
+          <div className="form-group">
+            <label>上传图片（最多5张）：</label>
+            <input 
+              type="file" 
+              multiple 
+              accept="image/*" 
+              onChange={(e) => handleImageUpload(e)}
+              disabled={images.length >= 5}
+            />
+            <div className="image-preview-container">
+              {images.map((image, index) => (
+                <div key={index} className="image-preview">
+                  <img 
+                    src={image} 
+                    alt={`Image ${index + 1}`} 
+                    onClick={() => handleImagePreview(image)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <button 
+                    className="remove-image" 
+                    onClick={() => removeImage(index)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="image-count">已上传 {images.length}/5 张图片</p>
+          </div>
           <button className="save-log-button" onClick={handleSaveMistake}>
             <FontAwesomeIcon icon={faSave} /> 保存错题
           </button>
@@ -381,6 +599,23 @@ const TaskDetail: React.FC = () => {
                 <div className="log-content">
                   <strong>题目：</strong>{mistake.question}
                 </div>
+                {mistake.images && mistake.images.length > 0 && (
+                  <div className="mistake-images">
+                    <strong>相关图片：</strong>
+                    <div className="image-grid">
+                      {mistake.images.map((image, index) => (
+                        <div key={index} className="image-item">
+                          <img 
+                            src={image} 
+                            alt={`Mistake image ${index + 1}`} 
+                            onClick={() => handleImagePreview(image)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="log-content">
                   <strong>错误答案：</strong>{mistake.wrongAnswer}
                 </div>
@@ -397,6 +632,16 @@ const TaskDetail: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 图片预览模态框 */}
+      {previewImage && (
+        <div className="image-preview-modal" onClick={closePreview}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={closePreview}>×</button>
+            <img src={previewImage} alt="Preview" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

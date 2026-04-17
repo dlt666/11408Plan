@@ -311,18 +311,22 @@ body {
   padding: 0 1rem;
 }
 
-.task-item {
+.task-container {
   background: var(--card-color);
   border-radius: 8px;
-  padding: 1.2rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.task-item {
+  padding: 1.2rem;
   border-left: 3px solid var(--primary-color);
   transition: all 0.2s ease;
 }
 
 .task-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  background: rgba(25, 118, 210, 0.05);
 }
 
 .task-header {
@@ -374,9 +378,7 @@ body {
 /* 子任务样式 */
 .subtasks-container {
   background: #f8f9ff;
-  border-radius: 0 0 8px 8px;
   padding: 1.2rem;
-  margin: 1rem -1.2rem -1.2rem -1.2rem;
   border-top: 1px solid var(--border-color);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -573,6 +575,31 @@ body {
   background: #45a049;
   box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
   transform: translateY(-1px);
+}
+
+.task-actions button.continue {
+  background: var(--warning-color);
+  color: white;
+  border: 1px solid var(--warning-color);
+  animation: pulse 2s infinite;
+}
+
+.task-actions button.continue:hover {
+  background: #e68a00;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
 }
 
 .task-actions button:hover {
@@ -942,6 +969,25 @@ body {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .task-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .start-button, .pause-button, .finish-button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+  }
+  
+  .task-actions button:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .start-button, .pause-button, .finish-button {
@@ -986,6 +1032,130 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-weight: bold;
+}
+
+/* 子任务部分样式 */
+.subtasks-section {
+  background: var(--card-color);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.subtasks-section h3 {
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.subtasks-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: #f8f9ff;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+}
+
+.completion-percentage {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.subtasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.subtask-item:hover {
+  background: #f8f9ff;
+  transform: translateX(4px);
+}
+
+.subtask-item.completed {
+  border-left: 3px solid var(--success-color);
+  background: #f0f9f0;
+}
+
+.subtask-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: white;
+  flex-shrink: 0;
+}
+
+.subtask-checkbox:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
+.subtask-item.completed .subtask-checkbox {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.check-icon {
+  color: white;
+  font-size: 14px;
+}
+
+.checkbox-empty {
+  width: 12px;
+  height: 12px;
+}
+
+.subtask-description {
+  flex: 1;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.subtask-item.completed .subtask-description {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+.subtask-status {
+  margin-left: 1rem;
+}
+
+.completed-text {
+  color: var(--success-color);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.no-subtasks {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+  background: #f9f9f9;
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--border-color);
 }
 
 .learning-log-section, .mistake-section {
@@ -1201,6 +1371,131 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 图片上传样式 */
+.image-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.image-preview {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-image:hover {
+  background: rgba(255, 0, 0, 1);
+}
+
+.image-count {
+  font-size: 12px;
+  color: #666;
+  margin: 5px 0 0 0;
+}
+
+/* 错题图片展示样式 */
+.mistake-images {
+  margin: 15px 0;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.image-item {
+  width: 120px;
+  height: 120px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 图片预览模态框样式 */
+.image-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  cursor: default;
+}
+
+.modal-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.close-button {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 1);
 }
 
 /* 404页面样式 */

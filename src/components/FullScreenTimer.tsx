@@ -21,7 +21,8 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
     let interval: NodeJS.Timeout | null = null
 
     if (isVisible && !isPaused) {
-      const start = Date.now() - (elapsedTime * 1000) // 从之前的时间继续
+      // 每次开始或继续计时时，都以当前实际时间为起点，加上之前的累计时间
+      const start = Date.now() - (elapsedTime * 1000)
       startTimeRef.current = start
       
       interval = setInterval(() => {
@@ -34,7 +35,7 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
       // 暂停时保存已过时间
       if (startTimeRef.current) {
         const currentElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
-        setElapsedTime(elapsedTime + currentElapsed)
+        setElapsedTime(currentElapsed)
         startTimeRef.current = null
       }
     } else if (!isVisible) {
@@ -66,6 +67,11 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
   }
 
   const handleClose = () => {
+    // 点击关闭按钮时暂停计时
+    if (!isPaused) {
+      setIsPaused(true)
+      onPause(true)
+    }
     onClose()
   }
 
