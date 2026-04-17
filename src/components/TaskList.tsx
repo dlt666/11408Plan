@@ -460,7 +460,7 @@ const TaskList: React.FC = () => {
       <h2>每日学习任务</h2>
       {tasks && tasks.length > 0 ? (
         tasks.map(task => (
-          <div key={task.id} className="task-container">
+          <React.Fragment key={task.id}>
             <div 
               className="task-item" 
               onClick={() => navigate(`/tasks/${task.id}`)}
@@ -647,7 +647,7 @@ const TaskList: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
+          </React.Fragment>
         ))
       ) : (
         <div className="no-tasks">
