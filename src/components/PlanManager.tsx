@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faEdit, faTrash, faSave, faCancel, faCalendar, faClock, faBullseye } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faEdit, faTrash, faSave, faCancel, faCalendar } from '@fortawesome/free-solid-svg-icons'
 
 interface PlanTemplate {
   id: string

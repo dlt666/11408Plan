@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FullScreenTimer from './FullScreenTimer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faPlus, faTrash, faEdit, faTasks, faClock } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPlus, faTrash, faEdit, faTasks } from '@fortawesome/free-solid-svg-icons'
 
 interface SubTask {
   id: string
@@ -661,7 +661,6 @@ const TaskList: React.FC = () => {
           onClose={handleTimerClose}
           onFinish={handleTimerFinish}
           onPause={handleTimerPause}
-          taskName={`${currentTask.subject}: ${currentTask.description}`}
           initialTime={(currentTask.actualTime || 0) * 60} // 转换为秒
         />
       )}

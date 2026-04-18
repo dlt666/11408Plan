@@ -2,7 +2,7 @@ import React from 'react'
 import Countdown from './Countdown'
 import QuoteDisplay from './QuoteDisplay'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBook, faCalendarCheck, faClock, faBookOpen, faGraduationCap, faBrain, faLightbulb, faBullseye } from '@fortawesome/free-solid-svg-icons'
+import { faBook, faCalendarCheck, faGraduationCap, faBrain, faLightbulb, faBullseye } from '@fortawesome/free-solid-svg-icons'
 
 const HomePage: React.FC = () => {
   return (

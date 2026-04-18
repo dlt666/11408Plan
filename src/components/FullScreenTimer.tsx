@@ -6,12 +6,11 @@ interface FullScreenTimerProps {
   isVisible: boolean
   onClose: () => void
   onFinish: (duration: number) => void
-  taskName: string
   onPause: (isPaused: boolean) => void
   initialTime: number
 }
 
-const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, onFinish, taskName, onPause, initialTime }) => {
+const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, onFinish, onPause, initialTime }) => {
   const [seconds, setSeconds] = useState(initialTime)
   const [isPaused, setIsPaused] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(initialTime)
