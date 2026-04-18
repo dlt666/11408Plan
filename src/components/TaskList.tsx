@@ -132,10 +132,9 @@ const TaskList: React.FC = () => {
         const updatedTasks = prevTasks.map(task => {
           if (task.status === 'in-progress' && task.startTime) {
             const currentTime = Date.now()
-            // 计算当前计时段的时间，并加上之前的累计时间
+            // 计算当前计时段的时间，替换actualTime，而不是累加
             const currentSegmentTime = Math.max(0, Math.floor((currentTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
-            const totalActualTime = (task.actualTime || 0) + currentSegmentTime
-            return { ...task, actualTime: totalActualTime }
+            return { ...task, actualTime: currentSegmentTime }
           }
           return task
         })
@@ -340,12 +339,11 @@ const TaskList: React.FC = () => {
         if (task.id === taskId && task.status === 'in-progress' && task.startTime) {
           const pauseTime = Date.now()
           const currentSegmentTime = Math.max(0, Math.floor((pauseTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
-          const totalActualTime = (task.actualTime || 0) + currentSegmentTime
           return { 
             ...task, 
             status: 'pending', 
             pauseTime,
-            actualTime: totalActualTime
+            actualTime: currentSegmentTime
           }
         }
         return task
@@ -401,12 +399,11 @@ const TaskList: React.FC = () => {
             if (task.id === currentTask.id && task.status === 'in-progress' && task.startTime) {
               const pauseTime = Date.now()
               const currentSegmentTime = Math.max(0, Math.floor((pauseTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
-              const totalActualTime = (task.actualTime || 0) + currentSegmentTime
               return { 
                 ...task, 
                 status: 'pending', 
                 pauseTime,
-                actualTime: totalActualTime
+                actualTime: currentSegmentTime
               }
             }
             return task
@@ -436,14 +433,14 @@ const TaskList: React.FC = () => {
       setTasks(prevTasks => 
         prevTasks.map(task => {
           if (task.id === currentTask.id) {
-            // 累加实际学习时间，而不是覆盖
-            const totalActualTime = (task.actualTime || 0) + minutes
+            // 直接使用当前计时段的时间，而不是累加
             // 只有当实际用时大于或等于预估时间时，才标记为完成
-            const isCompleted = totalActualTime >= task.estimatedTime
+            const isCompleted = minutes >= task.estimatedTime
             return { 
               ...task, 
               status: isCompleted ? 'completed' : 'pending', 
-              actualTime: totalActualTime 
+              actualTime: minutes,
+              pauseTime: undefined // 重置暂停时间，确保下次开始时正确
             }
           }
           return task

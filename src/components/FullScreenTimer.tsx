@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPause, faPlay, faStop, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faPause, faPlay, faStop, faTimes, faRefresh } from '@fortawesome/free-solid-svg-icons'
 
 interface FullScreenTimerProps {
   isVisible: boolean
@@ -15,43 +15,74 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
   const [seconds, setSeconds] = useState(initialTime)
   const [isPaused, setIsPaused] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(initialTime)
+  const [isRunning, setIsRunning] = useState(false)
   const startTimeRef = useRef<number | null>(null)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  // 当initialTime变化时，更新elapsedTime
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    setElapsedTime(initialTime)
+    setSeconds(initialTime)
+  }, [initialTime])
 
-    if (isVisible && !isPaused) {
-      // 每次开始或继续计时时，都以当前实际时间为起点，加上之前的累计时间
+  // 计时器核心逻辑
+  useEffect(() => {
+    if (isVisible && isRunning && !isPaused) {
+      // 开始或继续计时
       const start = Date.now() - (elapsedTime * 1000)
       startTimeRef.current = start
       
-      interval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         if (startTimeRef.current) {
           const currentElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
           setSeconds(currentElapsed)
         }
       }, 1000)
     } else if (isPaused) {
-      // 暂停时保存已过时间
+      // 暂停计时
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
       if (startTimeRef.current) {
         const currentElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
         setElapsedTime(currentElapsed)
         startTimeRef.current = null
       }
     } else if (!isVisible) {
-      // 关闭时重置状态
-      setSeconds(0)
+      // 关闭计时器
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+      if (startTimeRef.current) {
+        const currentElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+        setElapsedTime(currentElapsed)
+        startTimeRef.current = null
+      }
+      setIsRunning(false)
       setIsPaused(false)
-      setElapsedTime(0)
-      startTimeRef.current = null
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
       }
     }
-  }, [isVisible, isPaused, elapsedTime])
+  }, [isVisible, isRunning, isPaused, elapsedTime])
+
+  // 当计时器可见时自动开始
+  useEffect(() => {
+    if (isVisible) {
+      setIsRunning(true)
+    }
+  }, [isVisible])
+
+  const handleStart = () => {
+    setIsRunning(true)
+    setIsPaused(false)
+    onPause(false)
+  }
 
   const handlePause = () => {
     const newPausedState = !isPaused
@@ -59,10 +90,24 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
     onPause(newPausedState)
   }
 
+  const handleReset = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    setSeconds(initialTime)
+    setElapsedTime(initialTime)
+    setIsPaused(false)
+    setIsRunning(false)
+    startTimeRef.current = null
+    onPause(true)
+  }
+
   const handleStop = () => {
     onFinish(seconds)
     setSeconds(0)
     setIsPaused(false)
+    setIsRunning(false)
     onClose()
   }
 
@@ -94,9 +139,21 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
           <h2>{taskName}</h2>
           <div className="timer-display">{formatTime(seconds)}</div>
           <div className="timer-controls">
-            <button className="control-button" onClick={handlePause}>
-              <FontAwesomeIcon icon={isPaused ? faPlay : faPause} />
-              {isPaused ? '继续' : '暂停'}
+            {!isRunning && !isPaused && (
+              <button className="control-button start" onClick={handleStart}>
+                <FontAwesomeIcon icon={faPlay} />
+                开始
+              </button>
+            )}
+            {(isRunning || isPaused) && (
+              <button className="control-button pause" onClick={handlePause}>
+                <FontAwesomeIcon icon={isPaused ? faPlay : faPause} />
+                {isPaused ? '继续' : '暂停'}
+              </button>
+            )}
+            <button className="control-button reset" onClick={handleReset}>
+              <FontAwesomeIcon icon={faRefresh} />
+              重置
             </button>
             <button className="control-button stop" onClick={handleStop}>
               <FontAwesomeIcon icon={faStop} />

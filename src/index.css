@@ -1765,6 +1765,30 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
+.control-button.start {
+  background: rgba(76, 175, 80, 0.8);
+}
+
+.control-button.start:hover {
+  background: rgba(76, 175, 80, 1);
+}
+
+.control-button.pause {
+  background: rgba(255, 152, 0, 0.8);
+}
+
+.control-button.pause:hover {
+  background: rgba(255, 152, 0, 1);
+}
+
+.control-button.reset {
+  background: rgba(33, 150, 243, 0.8);
+}
+
+.control-button.reset:hover {
+  background: rgba(33, 150, 243, 1);
+}
+
 .control-button.stop {
   background: rgba(244, 67, 54, 0.8);
 }
