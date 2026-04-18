@@ -132,7 +132,6 @@ const TaskList: React.FC = () => {
         const updatedTasks = prevTasks.map(task => {
           if (task.status === 'in-progress' && task.startTime) {
             const currentTime = Date.now()
-            const pausedDuration = task.pausedDuration || 0
             // 计算当前计时段的时间，并加上之前的累计时间
             const currentSegmentTime = Math.max(0, Math.floor((currentTime - task.startTime) / 1000 / 60)) // 确保时间不为负数
             const totalActualTime = (task.actualTime || 0) + currentSegmentTime

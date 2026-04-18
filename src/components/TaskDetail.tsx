@@ -169,8 +169,9 @@ const TaskDetail: React.FC = () => {
     filesToProcess.forEach((file) => {
       const reader = new FileReader()
       reader.onload = (event) => {
-        if (event.target?.result) {
-          setImages(prev => [...prev, event.target.result as string])
+        const target = event.target as FileReader
+        if (target && target.result) {
+          setImages(prev => [...prev, target.result as string])
         }
       }
       reader.readAsDataURL(file)
@@ -199,8 +200,9 @@ const TaskDetail: React.FC = () => {
     filesToProcess.forEach((file) => {
       const reader = new FileReader()
       reader.onload = (event) => {
-        if (event.target?.result) {
-          setLogImages(prev => [...prev, event.target.result as string])
+        const target = event.target as FileReader
+        if (target && target.result) {
+          setLogImages(prev => [...prev, target.result as string])
         }
       }
       reader.readAsDataURL(file)
