@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faEdit, faTrash, faSave, faCancel } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faEdit, faTrash, faSave, faCancel, faCalendar, faClock, faBullseye } from '@fortawesome/free-solid-svg-icons'
 
 interface PlanTemplate {
   id: string
@@ -148,8 +148,13 @@ const PlanManager: React.FC<PlanManagerProps> = ({ onPlanSelect }) => {
 
   return (
     <div className="plan-manager">
+      <div className="page-title">
+        <div className="page-title-icon">
+          <FontAwesomeIcon icon={faCalendar} />
+        </div>
+        <h2 className="page-title-text">学习计划管理</h2>
+      </div>
       <div className="plan-header">
-        <h2>学习计划管理</h2>
         <button className="create-button" onClick={handleCreatePlan}>
           <FontAwesomeIcon icon={faPlus} /> 创建计划
         </button>

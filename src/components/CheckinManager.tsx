@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CheckinCalendar from './CheckinCalendar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheckCircle, faClock, faBookOpen } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle, faClock, faBookOpen, faCalendarCheck, faTasks, faBook } from '@fortawesome/free-solid-svg-icons'
 
 interface CheckinData {
   date: string
@@ -169,7 +169,12 @@ const CheckinManager: React.FC = () => {
 
   return (
     <div className="checkin-manager">
-      <h2>每日打卡</h2>
+      <div className="page-title">
+        <div className="page-title-icon">
+          <FontAwesomeIcon icon={faCalendarCheck} />
+        </div>
+        <h2 className="page-title-text">每日打卡</h2>
+      </div>
       <CheckinCalendar 
         onDateSelect={handleDateSelect}
         selectedDate={selectedDate}
@@ -178,7 +183,10 @@ const CheckinManager: React.FC = () => {
       {selectedCheckin && (
         <div className="checkin-details">
           <div className="checkin-header">
-            <h3>{selectedCheckin.date} 打卡详情</h3>
+            <h3>
+              <FontAwesomeIcon icon={faCalendarCheck} className="section-icon" />
+              {selectedCheckin.date} 打卡详情
+            </h3>
             {!selectedCheckin.checked && selectedCheckin.date === new Date().toISOString().split('T')[0] && (
               <button className="checkin-button" onClick={handleCheckin}>
                 <FontAwesomeIcon icon={faCheckCircle} /> 打卡
@@ -193,7 +201,10 @@ const CheckinManager: React.FC = () => {
           
           <div className="checkin-content">
             <div className="tasks-section">
-              <h4>学习任务</h4>
+              <h4>
+                <FontAwesomeIcon icon={faTasks} className="section-icon" />
+                学习任务
+              </h4>
               {selectedCheckin.tasks.length > 0 ? (
                 <div className="task-list">
                   {selectedCheckin.tasks.map(task => (
@@ -234,7 +245,10 @@ const CheckinManager: React.FC = () => {
             </div>
             
             <div className="logs-section">
-              <h4>学习日志</h4>
+              <h4>
+                <FontAwesomeIcon icon={faBook} className="section-icon" />
+                学习日志
+              </h4>
               {selectedCheckin.logs.length > 0 ? (
                 <div className="log-list">
                   {selectedCheckin.logs.map(log => (

@@ -136,7 +136,7 @@ const FullScreenTimer: React.FC<FullScreenTimerProps> = ({ isVisible, onClose, o
           <button className="close-button" onClick={handleClose}>
             <FontAwesomeIcon icon={faTimes} />
           </button>
-          <h2>{taskName}</h2>
+          <h2 style={{ color: 'black' }}>建议点击暂停后再退出计时器</h2>
           <div className="timer-display">{formatTime(seconds)}</div>
           <div className="timer-controls">
             {!isRunning && !isPaused && (

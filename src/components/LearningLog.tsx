@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBook, faPen, faHistory } from '@fortawesome/free-solid-svg-icons'
 
 interface LearningLogEntry {
   id: string
@@ -56,10 +58,18 @@ const LearningLog: React.FC = () => {
 
   return (
     <div className="learning-log">
-      <h2>学习日志</h2>
+      <div className="page-title">
+        <div className="page-title-icon">
+          <FontAwesomeIcon icon={faBook} />
+        </div>
+        <h2 className="page-title-text">学习日志</h2>
+      </div>
       
       <div className="log-form">
-        <h3>添加学习日志</h3>
+        <h3>
+          <FontAwesomeIcon icon={faPen} className="section-icon" />
+          添加学习日志
+        </h3>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem' }}>
@@ -118,7 +128,10 @@ const LearningLog: React.FC = () => {
       </div>
       
       <div className="log-list">
-        <h3>历史日志</h3>
+        <h3>
+          <FontAwesomeIcon icon={faHistory} className="section-icon" />
+          历史日志
+        </h3>
         {logs.map(log => (
           <div key={log.id} className="log-item">
             <h4>{log.subject} - {log.date}</h4>

@@ -2,15 +2,23 @@ import React from 'react'
 import Countdown from './Countdown'
 import QuoteDisplay from './QuoteDisplay'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBook, faCalendarCheck, faClock, faBookOpen } from '@fortawesome/free-solid-svg-icons'
+import { faBook, faCalendarCheck, faClock, faBookOpen, faGraduationCap, faBrain, faLightbulb, faBullseye } from '@fortawesome/free-solid-svg-icons'
 
 const HomePage: React.FC = () => {
   return (
     <div className="home-page">
-      <div className="app-title">
-        <h1>沾上11408，这辈子也是直了</h1>
-        <div className="title-subtitle">
-          <span>科学备考，高效学习</span>
+      <div className="hero-section">
+        <div className="hero-content">
+          <div className="hero-icon">
+            <FontAwesomeIcon icon={faGraduationCap} size="4x" />
+          </div>
+          <h1 className="hero-title">
+            <span className="title-highlight">11408</span>一研为定
+          </h1>
+          <p className="hero-subtitle">科学备考，高效学习，成就梦想</p>
+          <div className="hero-badge">
+            <span className="badge-text">2027年考研加油</span>
+          </div>
         </div>
       </div>
       
@@ -18,26 +26,40 @@ const HomePage: React.FC = () => {
         <Countdown />
         <QuoteDisplay />
         
-        <div className="feature-cards">
-          <div className="feature-card">
-            <FontAwesomeIcon icon={faBook} size="2x" className="feature-icon" />
-            <h3>错题集记录</h3>
-            <p>记录错题，及时复盘</p>
-          </div>
-          <div className="feature-card">
-            <FontAwesomeIcon icon={faClock} size="2x" className="feature-icon" />
-            <h3>发发牢骚唠唠嗑</h3>
-            <p>你是否也学疯了！</p>
-          </div>
-          <div className="feature-card">
-            <FontAwesomeIcon icon={faCalendarCheck} size="2x" className="feature-icon" />
-            <h3>择校数据记录</h3>
-            <p>记录择校数据，方便后续分析</p>
-          </div>
-          <div className="feature-card">
-            <FontAwesomeIcon icon={faBookOpen} size="2x" className="feature-icon" />
-            <h3>复试计划与上机考试</h3>
-            <p>制定科学的学习计划，合理分配时间</p>
+        <div className="feature-section">
+          <h2 className="section-title">
+            <FontAwesomeIcon icon={faLightbulb} className="section-icon" />
+            核心功能
+          </h2>
+          <div className="feature-cards">
+            <div className="feature-card">
+              <div className="feature-icon-container">
+                <FontAwesomeIcon icon={faBook} size="2x" className="feature-icon" />
+              </div>
+              <h3 className="feature-title">错题集记录</h3>
+              <p className="feature-description">记录错题，及时复盘，避免重复错误</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon-container">
+                <FontAwesomeIcon icon={faBrain} size="2x" className="feature-icon" />
+              </div>
+              <h3 className="feature-title">学习日志</h3>
+              <p className="feature-description">记录学习心得，梳理知识体系</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon-container">
+                <FontAwesomeIcon icon={faCalendarCheck} size="2x" className="feature-icon" />
+              </div>
+              <h3 className="feature-title">打卡系统</h3>
+              <p className="feature-description">每日打卡，养成良好学习习惯</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon-container">
+                <FontAwesomeIcon icon={faBullseye} size="2x" className="feature-icon" />
+              </div>
+              <h3 className="feature-title">学习计划</h3>
+              <p className="feature-description">制定科学计划，合理分配时间</p>
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FullScreenTimer from './FullScreenTimer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faPlus, faTrash, faEdit, faTasks, faClock } from '@fortawesome/free-solid-svg-icons'
 
 interface SubTask {
   id: string
@@ -452,7 +452,12 @@ const TaskList: React.FC = () => {
 
   return (
     <div className="task-list">
-      <h2>每日学习任务</h2>
+      <div className="page-title">
+        <div className="page-title-icon">
+          <FontAwesomeIcon icon={faTasks} />
+        </div>
+        <h2 className="page-title-text">每日学习任务</h2>
+      </div>
       {tasks && tasks.length > 0 ? (
         tasks.map(task => (
           <div key={task.id} className="task-container">
